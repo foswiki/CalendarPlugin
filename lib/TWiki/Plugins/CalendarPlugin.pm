@@ -35,7 +35,7 @@ use Time::Local;
 # =========================
 use vars qw( $web $topic $user $installWeb $VERSION $RELEASE $pluginName $debug
 	    $libsLoaded $libsError $defaultsInitialized %defaults );
-$VERSION   = '$Rev: 9189 $';
+$VERSION   = '$Rev$';
 $RELEASE = 'Dakar';
 
 #$VERSION   = '1.020'; #dab# Bug fix from TWiki:Main.MarcLangheinrich for multiday events that were not properly displayed because the first day occurred in the current month, but before the first day included in the list.

@@ -4,26 +4,7 @@
 # Christian Schultze: debugging, relative month/year, highlight today
 # Akim Demaille <akim@freefriends.org>: handle date intervals.
 # Copyright (C) 2002-2006 Peter Thoeny, peter@thoeny.org
-#
-# For licensing info read LICENSE file in the TWiki root.
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details, published at
-# http://www.gnu.org/copyleft/gpl.html
-#
-# As per the GPL, removal of this notice is prohibited.
-#
-# =========================
-#
-# This is a plugin for showing a Month calendar with events.
-#
-# =========================
+
 package Foswiki::Plugins::CalendarPlugin;
 
 
@@ -38,6 +19,7 @@ use vars qw( $web $topic $user $installWeb $VERSION $RELEASE $pluginName $debug
 $VERSION   = '$Rev$';
 $RELEASE = 'Dakar';
 
+#port to Foswiki
 #$VERSION   = '1.020'; #dab# Bug fix from TWiki:Main.MarcLangheinrich for multiday events that were not properly displayed because the first day occurred in the current month, but before the first day included in the list.
 #$VERSION   = '1.019'; #dab# Added support for monthly repeaters specified as "L Fri" (last Friday in all months).
 #$VERSION   = '1.018'; #dab# Added support displaying calendars for multiple months; added support for displaying events as a list
@@ -988,7 +970,7 @@ sub highlightDay
    | $epoch | seconds since 1st January 1970 |
 
 Note that this description (and some of the code) is taken from the
-TWiki function formatTime. Ideally, we would be able to use that
+core function formatTime. Ideally, we would be able to use that
 function, but that function deals with time in seconds from the epoch
 and this plugin uses a different notion of time.
 
@@ -1018,7 +1000,7 @@ sub formatDate
     # Set format to empty string if undefined to avoid possible warnings
     $formatString ||= '';
 
-    # Unfortunately, there is a disconnect between the TWiki
+    # Unfortunately, there is a disconnect between the core
     # formatTime() function and Date::Calc when it comes to the day of
     # the week. formatTime() numbers from Sun=0 to Sat=6, whereas
     # Date::Calc numbers from Mon=1 to Sun=7. So, the Date::Calc value

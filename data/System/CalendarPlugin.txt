@@ -1,5 +1,5 @@
 %META:TOPICINFO{author="ProjectContributor" date="1139433752" format="1.0" version="1.8"}%
----+!! Calendar Plugin (version 1.020)
+---+!! Calendar Plugin (version Feb 2009)
 
 The <nop>CalendarPlugin handles the tag *%<nop>CALENDAR%* that inserts a
 monthly calendar in the page. Multiple topics can be specified as the source
@@ -352,7 +352,8 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 
 ---++ Plugin Installation Instructions
 
-__Note:__ You do not need to install anything on the browser to use this plugin. The following instructions are for the administrator who installs the plugin on the server where TWiki is running. 
+__Note:__ You do not need to install anything on the browser to use this plugin. 
+The following instructions are for the administrator who installs the plugin on the server where Foswiki is running. 
 
 	* Download the ZIP file from the Plugin web (see below)
 	* The Plugin uses the ==HTML::CalendarMonthSimple== and ==Date::Calc== CPAN packages (see http://www.cpan.org)
@@ -367,16 +368,17 @@ __Note:__ You do not need to install anything on the browser to use this plugin.
 	  | ==data/System/%TOPIC%.txt,v== | Plugin topic repository |
 	  | ==lib/Foswiki/Plugins/%TOPIC%.pm== | Plugin Perl module |
 	  | ==pub/System/%TOPIC%/exclam.gif== | Image file |
-	* (Dakar) Visit =configure= in your TWiki installation, and enable the plugin in the {Plugins} section.
+	* Visit =configure= , and enable the plugin in the {Plugins} section.
 	* Test if the installation was successful:
 		* You should see two calendars near the Event list above and a current month calendar below:
 %CALENDAR%
 
 ---++ Plugin Info
 
-|  Plugin Author: | TWiki:Main/AndreaSterbini |
-|  Plugin Version: | V1.020 (6 Mar 2006) |
+|  Plugin Author: | Foswiki:Main.AndreaSterbini |
+|  Plugin Version: | 10 Feb 2009 |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+| 10 Feb 2009: | Foswiki:Main.SvenDowideit: port to Foswiki |
 | V1.020: | TWiki:Main.DavidBright: Bug fix from TWiki:Main.MarcLangheinrich for multiday events that were not properly displayed because the first day occurred in the current month, but before the first day included in the list. |
 | V1.019: | TWiki:Main.DavidBright: Added support for monthly repeaters specified as "L Fri" (last Friday in all months). |
 |  V1.018: | TWiki:Main.DavidBright: Added capability to display multiple months in one call, display events in a list, and provided for more extensive formatting of date and description of events. |
@@ -405,15 +407,9 @@ __Note:__ You do not need to install anything on the browser to use this plugin.
 |  Foswiki:Extensions/Benchmark: | %SYSTEMWEB%.GoodStyle 95%, %SYSTEMWEB%.FormattedSearch 97%, %TOPIC% 88% with installed Plugin |
 |  Plugin Home: | http://foswiki.org/Extensions/%TOPIC% |
 |  Feedback: | http://foswiki.org/Extensions/%TOPIC%Dev |
-|  Appraisal: | http://foswiki.org/Extensions/%TOPIC%Appraisal |
 
 __Related Topics:__ %SYSTEMWEB%.DefaultPreferences, %USERSWEB%.SitePreferences, [[%SYSTEMWEB%.Plugins][Plugins]]
 
--- TWiki:Main/AndreaSterbini - 27 Feb 2001 <br />
--- TWiki:Main/PeterThoeny - 15 Jan 2004 <br />
--- TWiki:Main.NathanKerr - 28 Jan 2005 <br />
--- TWiki:Main/DavidBright - 11 Mar 2005, 8 Feb 2006 <br />
--- TWiki:Main.DanielRohde - 21 Jun 2005 <br />	 
 
 <!-- Do _not_ attempt to edit this topic; it is auto-generated. Please add comments/questions/remarks to the Dev topic instead. -->
 

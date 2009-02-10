@@ -24,7 +24,7 @@
 # This is a plugin for showing a Month calendar with events.
 #
 # =========================
-package TWiki::Plugins::CalendarPlugin;
+package Foswiki::Plugins::CalendarPlugin;
 
 
 # use strict;
@@ -83,7 +83,7 @@ sub initPlugin
 # =========================
 sub initDefaults
 {
-    my $webColor = &TWiki::Func::getPreferencesValue('WEBBGCOLOR', $web) ||
+    my $webColor = &Foswiki::Func::getPreferencesValue('WEBBGCOLOR', $web) ||
 		    'wheat' ;
 
     # reasonable defaults to produce a small calendar
@@ -140,7 +140,7 @@ sub initDefaults
     my $v;
     foreach $option (keys %defaults) {
 	# read defaults from CalendarPlugin topic
-	$v = &TWiki::Func::getPreferencesValue("CALENDARPLUGIN_\U$option\E") || undef;
+	$v = &Foswiki::Func::getPreferencesValue("CALENDARPLUGIN_\U$option\E") || undef;
 	$defaults{$option} = $v if defined($v);
     }
     $defaultsInitialized = 1;
@@ -158,10 +158,10 @@ sub readTopicText
 {
     my( $theWeb, $theTopic ) = @_;
     my $text = '';
-    if( $TWiki::Plugins::VERSION >= 1.010 ) {
-        $text = &TWiki::Func::readTopicText( $theWeb, $theTopic, '', 1 );
+    if( $Foswiki::Plugins::VERSION >= 1.010 ) {
+        $text = &Foswiki::Func::readTopicText( $theWeb, $theTopic, '', 1 );
     } else {
-        $text = &TWiki::Func::readTopic( $theWeb, $theTopic );
+        $text = &Foswiki::Func::readTopic( $theWeb, $theTopic );
     }
     # return raw topic text, including meta data
     return $text;
@@ -172,7 +172,7 @@ sub expandIncludedEvents
 {
     my( $theAttributes, $theWeb, $theTopic, @theProcessedTopics ) = @_;
 
-    my $webTopic = &TWiki::Func::extractNameValuePair( $theAttributes );
+    my $webTopic = &Foswiki::Func::extractNameValuePair( $theAttributes );
     if( $webTopic =~ m|^([^.]+)[\.\/](.*)$| ) {
         $theWeb = $1;
         $theTopic = $2;
@@ -294,13 +294,13 @@ sub handleCalendar
     my $orgtopic = $options{topic};
     my $orgweb = $options{web};
     foreach $option (keys %options) {
-	$v = &TWiki::Func::extractNameValuePair($attributes,$option) || undef;
+	$v = &Foswiki::Func::extractNameValuePair($attributes,$option) || undef;
 	$options{$option} = $v if defined($v);
     }
 
     # get GMT offset
     my ($currentYear, $currentMonth, $currentDay, $currentHour, $currentMinute, $currentSecond) = Today_and_Now(1);
-    my $gmtoff = scalar &TWiki::Func::extractNameValuePair( $attributes, 'gmtoffset' );
+    my $gmtoff = scalar &Foswiki::Func::extractNameValuePair( $attributes, 'gmtoffset' );
     if ( $gmtoff ) {
     	$gmtoff += 0;
     	($currentYear,
@@ -319,8 +319,8 @@ sub handleCalendar
 
 
     # read fixed months/years
-    my $m = scalar &TWiki::Func::extractNameValuePair( $attributes, 'month' );
-    my $y = scalar &TWiki::Func::extractNameValuePair( $attributes, 'year' );
+    my $m = scalar &Foswiki::Func::extractNameValuePair( $attributes, 'month' );
+    my $y = scalar &Foswiki::Func::extractNameValuePair( $attributes, 'year' );
 
     # Check syntax of year parameter. It can be blank (meaning the
     # current year), an absolute number, or a relative number (e.g.,
@@ -359,7 +359,7 @@ sub handleCalendar
     } 
 
     # read and set the desired language
-    my $lang = scalar &TWiki::Func::extractNameValuePair( $attributes, 'lang' );
+    my $lang = scalar &Foswiki::Func::extractNameValuePair( $attributes, 'lang' );
     $lang = $lang ? $lang : $defaults{lang};
     Date::Calc::Language(Date::Calc::Decode_Language($lang));
 
@@ -371,7 +371,7 @@ sub handleCalendar
     # Process "aslist" parameter (if set, display the calendar as a
     # list, not as a table)
 
-    my $asList = scalar &TWiki::Func::extractNameValuePair( $attributes,
+    my $asList = scalar &Foswiki::Func::extractNameValuePair( $attributes,
 							    'aslist' );
 
     if ($asList) {
@@ -412,14 +412,14 @@ sub handleCalendar
     # Process "days" parameter (goes with aslist=1; specifies the
     # number of days of calendar data to list).  Default is 1.
 
-    my $numDays = scalar &TWiki::Func::extractNameValuePair( $attributes,
+    my $numDays = scalar &Foswiki::Func::extractNameValuePair( $attributes,
 							     'days' );
     $numDays = 1 if (! $numDays);
 
     # Process "months" parameter (goes with aslist=0; specifies the
     # number of months of calendar data to list) Default is 1.
 
-    my $numMonths = scalar &TWiki::Func::extractNameValuePair( $attributes, 'months' );
+    my $numMonths = scalar &Foswiki::Func::extractNameValuePair( $attributes, 'months' );
     $numMonths = 1 if (! $numMonths);
 
     # Figure out last month/year to display. This calculation depends
@@ -453,7 +453,7 @@ sub handleCalendar
     my $text = getTopicText($theTopic, $theWeb, $refText, %options);
 
     # recursively expand includes
-    # (don't rely on TWiki::Func::expandCommonVariables to avoid deep recursion)
+    # (don't rely on Foswiki::Func::expandCommonVariables to avoid deep recursion)
     $text =~ s/%INCLUDE{(.*?)}%/&expandIncludedEvents( $1, $options{web}, $options{topic}, () )/geo;
 
     # Before this was modified to do multiple months, there was a
@@ -497,7 +497,7 @@ sub handleCalendar
 	}
 
 	# header color
-	my $webColor = &TWiki::Func::getPreferencesValue('WEBBGCOLOR',
+	my $webColor = &Foswiki::Func::getPreferencesValue('WEBBGCOLOR',
 							 $options{web}) ||
 							     'wheat' ;
 	# Highlight today
@@ -588,7 +588,7 @@ sub handleCalendar
 		    }
 		}
 	    };
-	    &TWiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
+	    &Foswiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
 	}
 	# then collect all intervals without year
 	@days = fetchDays( "$date_rx\\s+-\\s+$date_rx", \@bullets );
@@ -620,7 +620,7 @@ sub handleCalendar
 		    }
 		}
 	    };
-	    &TWiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
+	    &Foswiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
 	}
 	# first collect all dates with year
 	@days = fetchDays( "$full_date_rx", \@bullets );
@@ -631,7 +631,7 @@ sub handleCalendar
 		    &highlightDay( $cal, $dd, $descr, %options);
 		}
 	    };
-	    &TWiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
+	    &Foswiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
 	}
 	# collect all anniversary dates
 	@days = fetchDays( "$anniversary_date_rx", \@bullets );
@@ -655,7 +655,7 @@ sub handleCalendar
 		    &highlightDay( $cal, $dd, $descr . $elapsed_indicator, %options);
 		}
 	    };
-	    &TWiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
+	    &Foswiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
 	}
 	# then collect all dates without year
 	@days = fetchDays( "$date_rx", \@bullets );
@@ -671,7 +671,7 @@ sub handleCalendar
 		    &highlightDay( $cal, $dd, $descr, %options );
 		}
 	    };
-	    &TWiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
+	    &Foswiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
 	}
 
 	# collect monthly repeaters
@@ -697,7 +697,7 @@ sub handleCalendar
 		    &highlightDay( $cal, $hd, $descr, %options );
 		}
 	    };
-	    &TWiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
+	    &Foswiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
 	}
 
 	# collect weekly repeaters with start and end dates
@@ -721,7 +721,7 @@ sub handleCalendar
 		    ($ny, $nm, $hd) = Add_Delta_Days($y, $m, $hd, 7);
 		} while ($ny == $y && $nm == $m);
 	    };
-	    &TWiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
+	    &Foswiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
 	}
 
 	# collect weekly repeaters with start dates
@@ -744,7 +744,7 @@ sub handleCalendar
 		    ($ny, $nm, $hd) = Add_Delta_Days($y, $m, $hd, 7);
 		} while ($ny == $y && $nm == $m);
 	    };
-	    &TWiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
+	    &Foswiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
 	}
 
 	# collect weekly repeaters
@@ -765,7 +765,7 @@ sub handleCalendar
 		    ($ny, $nm, $hd) = Add_Delta_Days($y, $m, $hd, 7);
 		} while ($ny == $y && $nm == $m);
 	    };
-	    &TWiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
+	    &Foswiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
 	}
 
 	# collect num-day-mon repeaters
@@ -794,7 +794,7 @@ sub handleCalendar
 		    }
 		}
 	    };
-	    &TWiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
+	    &Foswiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
 	}
 
 	# collect periodic repeaters with start and end dates
@@ -820,7 +820,7 @@ sub handleCalendar
 		    ($yy1, $mm1, $dd1) = Add_Delta_Days($yy1, $mm1, $dd1, $p);
 		}
 	    };	
-	    &TWiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
+	    &Foswiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
 	}
 
 	# collect periodic repeaters
@@ -846,7 +846,7 @@ sub handleCalendar
 		    }
 		}
 	    };
-	    &TWiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
+	    &Foswiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
 	}
 
 	# collect date monthly repeaters
@@ -863,7 +863,7 @@ sub handleCalendar
 		    &highlightDay( $cal, $dd, $descr, %options );
 		}
 	    };
-	    &TWiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
+	    &Foswiki::Func::writeWarning( "$pluginName: $@ " ) if $@ && $debug;
 	}
 
 	# Format the calendar as either a list or a table
@@ -1004,7 +1004,7 @@ sub formatDate
 		      Day_of_Year
 		      Month_to_Text);
 
-    &TWiki::Func::writeDebug("formatDate: $formatString, $date") if $debug;
+    &Foswiki::Func::writeDebug("formatDate: $formatString, $date") if $debug;
     my $outputTimeZone = 'gmtime'; # FIXME: Should be configurable
     my $value = '';	# Return value for the function
     my ($year, $mon, $day) = Add_Delta_Days(1, 1, 1, $date - 1);
@@ -1037,7 +1037,7 @@ sub formatDate
 
     # HTTP header format, e.g. "Thu, 23 Jul 1998 07:21:56 EST"
     # - based on RFC 2616/1123 and HTTP::Date; also used
-    # by TWiki::Net for Date header in emails.
+    # by Foswiki::Net for Date header in emails.
     $formatString =~ s/\$(http|email)/\$wday, \$day \$month \$year \$hour:\$min:\$sec \$tz/gi;
 
     # ISO Format, see spec at http://www.w3.org/TR/NOTE-datetime
@@ -1051,7 +1051,7 @@ sub formatDate
     $formatString =~ s/\$iso/\$year-\$mo-\$dayT\$hour:\$min$tzd/gi;
 
     # The matching algorithms here are the same as those in
-    # TWiki::Time::formatTime()
+    # Foswiki::Time::formatTime()
 
     $value = $formatString;
     $value =~ s/\$seco?n?d?s?/sprintf('%.2u',$sec)/gei;

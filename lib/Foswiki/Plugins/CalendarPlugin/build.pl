@@ -24,12 +24,12 @@ BEGIN {
   }
 }
 
-use TWiki::Contrib::Build;
+use Foswiki::Contrib::Build;
 
 # Declare our build package
 { package CalendarPluginBuild;
 
-  @CalendarPluginBuild::ISA = ( "TWiki::Contrib::Build" );
+  @CalendarPluginBuild::ISA = ( "Foswiki::Contrib::Build" );
 
   sub new {
     my $class = shift;

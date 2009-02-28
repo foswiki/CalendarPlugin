@@ -453,4 +453,5 @@ __Related Topics:__ %SYSTEMWEB%.DefaultPreferences, %USERSWEB%.SitePreferences, 
 
 <!-- Do _not_ attempt to edit this topic; it is auto-generated. Please add comments/questions/remarks to the Dev topic instead. -->
 
-%META:FILEATTACHMENT{name="exclam.gif" attr="" comment="Image of exclamation point" date="1073090410" path="exclam.gif" size="79" user="PeterThoeny" version="1.1"}%
+%META:FILEATTACHMENT{name="exclam.gif" attr="" comment="Image of exclamation point" date="1073090410"}%
+%META:FILEATTACHMENT{name="day-bg.png" attr="" comment="example css background image"}%

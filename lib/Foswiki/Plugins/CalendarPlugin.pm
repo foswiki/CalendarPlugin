@@ -19,7 +19,8 @@ use vars qw( $web $topic $user $installWeb $VERSION $RELEASE $pluginName $debug
 $VERSION   = '$Rev$';
 $RELEASE = 'Dakar';
 
-#port to Foswiki
+# add cssclasses - SvenDowideit@fosiki.com
+#port to Foswiki - SvenDowideit@fosiki.com
 #$VERSION   = '1.020'; #dab# Bug fix from TWiki:Main.MarcLangheinrich for multiday events that were not properly displayed because the first day occurred in the current month, but before the first day included in the list.
 #$VERSION   = '1.019'; #dab# Added support for monthly repeaters specified as "L Fri" (last Friday in all months).
 #$VERSION   = '1.018'; #dab# Added support displaying calendars for multiple months; added support for displaying events as a list
@@ -82,11 +83,13 @@ sub initDefaults
 	nowrap				=> undef, # the default is ok
 	sharpborders			=> 1,
 	cellheight			=> undef, # the default is ok
-	cellclass			=> undef, # the default is ok
-	weekdaycellclass		=> undef, # the default is ok
-	weekendcellclass		=> undef, # the default is ok
-	todaycellclass			=> undef, # the default is ok
-	headerclass			=> undef, # the default is ok
+#CSS
+	tableclass			=> 'calendar $month $year',
+	cellclass				=> 'day $day $month $year',
+	weekdaycellclass		=> 'weekday',
+	weekendcellclass		=> 'weekend',
+	todaycellclass			=> 'today',
+	headerclass			=> 'calendarHeader',
 	# colors
 	bgcolor				=> 'white',
 	weekdaycolor			=> undef, # the default is ok
@@ -471,6 +474,12 @@ sub handleCalendar
 	$cal->saturday(Date::Calc::Day_of_Week_to_Text(6));
 	$cal->sunday(Date::Calc::Day_of_Week_to_Text(7));
 	$cal->weekdays(map { Date::Calc::Day_of_Week_to_Text $_ } (1..5));
+	
+	$options{tableclass} = (formatDate($cal, $options{tableclass}, Date_to_Days($cal->year(), $cal->month(), 1), ''));
+	$options{headerclass} = (formatDate($cal, $options{headerclass}, Date_to_Days($cal->year(), $cal->month(), 1), ''));
+	$options{weekdaycellclass} = (formatDate($cal, $options{weekdaycellclass}, Date_to_Days($cal->year(), $cal->month(), 1), ''));
+	$options{weekendcellclass} = (formatDate($cal, $options{weekendcellclass}, Date_to_Days($cal->year(), $cal->month(), 1), ''));
+	$options{todaycellclass} = (formatDate($cal, $options{todaycellclass}, Date_to_Days($cal->year(), $cal->month(), 1), ''));
 
 	my $p = '';
 	while (($k,$v) = each %options) {
@@ -486,19 +495,24 @@ sub handleCalendar
 	$options{todaycolor}  = $webColor;
 	$options{headercolor} = $webColor;
 
-	# set the initial day values if normal date numbers are not shown
-	if ($cal->showdatenumbers == 0) {
-	    for ($i=1; $i<33 ; $i++) {
-		if (($cal->month == $cal->today_month())
+	for ($i=1; $i<= Days_in_Month($cal->year(), $cal->month()) ; $i++) {
+	    if (($cal->month == $cal->today_month())
 		    && ($cal->year == $cal->today_year())
-		    && ($i == $cal->today_date())) {
+		    && ($i == $cal->today_date())) 
+	    {
+		$cal->datecellclass($i, formatDate($cal, $options{todaycellclass}.' '.$options{cellclass}, Date_to_Days($cal->year(), $cal->month(), $i), ''));
+		if ($cal->showdatenumbers == 0) {
 		    $cal->setcontent($i, &formatToday($cal, $i, %options));
-		} else {
+		}
+	    } else {
+		$cal->datecellclass($i, formatDate($cal, $options{cellclass}, Date_to_Days($cal->year(), $cal->month(), $i), ''));
+		if ($cal->showdatenumbers == 0) {
 		    $cal->setcontent($i, &formatDateNumber($cal, $i, %options));
 		}
 	    }
 	}
 
+	
 	# set names for days of the week
 	if ($options{showweekdayheaders} && defined($options{daynames}))
 	{
@@ -985,7 +999,6 @@ sub formatDate
 		      Day_of_Week_to_Text
 		      Day_of_Year
 		      Month_to_Text);
-
     &Foswiki::Func::writeDebug("formatDate: $formatString, $date") if $debug;
     my $outputTimeZone = 'gmtime'; # FIXME: Should be configurable
     my $value = '';	# Return value for the function
@@ -1056,6 +1069,7 @@ sub formatDate
 
     # We add processing of a newline indicator
     $value =~ s/\$n/\n/g ;
+    
     return $value;
 }
 

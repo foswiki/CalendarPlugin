@@ -60,6 +60,12 @@ NB. This Plugin does not, and has never, observed topic permissions.
 | ==datenumberformat== | Specifies formatting for the date number in each cell. The formatting codes accepted are the same as those for the ==%<nop>GMTIME%== variable. | '$day' (if =aslist=0=)%BR%'	* $day $mon $year' (if =aslist=1=) |
 | ==todaydatenumberformat== | Specifies formatting for the date number for the current day (today) in the calendar. The formatting codes accepted are the same as those for the ==%<nop>GMTIME%== variable. | ==datenumberformat== |
 | ==multidayformat== | Specifies formatting of the description for multi-day events. See [[%TOPIC%#MultiDayFormatting][Multi-Day Event Formatting]] for details. | ==$description== |
+| ==tableclass== | css class given to the outer table | ==calendar $month $year== |
+| ==cellclass== | css class given to each day's element | ==day $day $month $year== |
+| ==weekdaycellclass== | css class given to weekdays in the =showweekdayheaders= | ==weekday== |
+| ==weekendcellclass== | css class given to weekendin the =showweekdayheaders= | ==weekend== |
+| ==todaycellclass== | css class given to today's element (inaddition to =cellclass=) | ==today== |
+| ==headerclass== | css class given to the header | ==calendarHeader== |
 
 ---+++ Event Syntax
 
@@ -370,14 +376,48 @@ The following instructions are for the administrator who installs the plugin on 
 	  | ==pub/System/%TOPIC%/exclam.gif== | Image file |
 	* Visit =configure= , and enable the plugin in the {Plugins} section.
 	* Test if the installation was successful:
-		* You should see two calendars near the Event list above and a current month calendar below:
-%CALENDAR%
+		* You should see two calendars near the Event list above and a current month calendar below (using css style section inline):
+<style>
+.bottomCalendar td {
+background-color: transparent
+}
+.bottomCalendar td td,
+.bottomCalendar td th {
+background-color: transparent;
+float: left;
+padding:2px;
+margin: 2px;
+width: 5em;
+}
+.bottomCalendar .calendarHeader {
+width: auto;
+float:right;
+}
+.bottomCalendar .day {
+background:transparent url(%ATTACHURL%/day-bg.png) no-repeat scroll bottom right;
+text-align: left;
+vertical-align:top;
+height: 5em;
+overflow: hidden;
+}
+.bottomCalendar .Sat,
+.bottomCalendar .Sun {
+background:transparent url(%ATTACHURL%/day-bg.png) no-repeat scroll bottom left;
+}
+.bottomCalendar .today {
+background:transparent url(%ATTACHURL%/day-bg.png) no-repeat scroll top left;
+color:darkred;
+font-weight:bold;
+}
+</style>
+%CALENDAR{tableclass="bottomCalendar" cellclass="day $wday $day $month $year"}%
 
 ---++ Plugin Info
 
 |  Plugin Author: | Foswiki:Main.AndreaSterbini |
-|  Plugin Version: | 10 Feb 2009 |
+|  Plugin Version: | 28 Feb 2009 |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+| 28 Feb 2009: | Foswiki:Main.SvenDowideit: add css classes and parameters so that we're not so ugly anymore |
 | 10 Feb 2009: | Foswiki:Main.SvenDowideit: port to Foswiki |
 | V1.020: | TWiki:Main.DavidBright: Bug fix from TWiki:Main.MarcLangheinrich for multiday events that were not properly displayed because the first day occurred in the current month, but before the first day included in the list. |
 | V1.019: | TWiki:Main.DavidBright: Added support for monthly repeaters specified as "L Fri" (last Friday in all months). |

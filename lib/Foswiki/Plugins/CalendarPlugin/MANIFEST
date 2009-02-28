@@ -1,3 +1,4 @@
 data/System/CalendarPlugin.txt 0660
 lib/Foswiki/Plugins/CalendarPlugin.pm 0440
 pub/System/CalendarPlugin/exclam.gif 0660
+pub/System/CalendarPlugin/day-bg.png

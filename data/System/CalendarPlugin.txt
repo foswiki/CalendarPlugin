@@ -444,7 +444,6 @@ font-weight:bold;
 |  Other Dependencies: | none |
 |  Perl Version: | 5.000 and up |
 |  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
-|  Foswiki:Extensions/Benchmark: | %SYSTEMWEB%.GoodStyle 95%, %SYSTEMWEB%.FormattedSearch 97%, %TOPIC% 88% with installed Plugin |
 |  Plugin Home: | http://foswiki.org/Extensions/%TOPIC% |
 |  Feedback: | http://foswiki.org/Extensions/%TOPIC%Dev |
 

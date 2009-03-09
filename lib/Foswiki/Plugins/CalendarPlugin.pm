@@ -19,6 +19,7 @@ use vars qw( $web $topic $user $installWeb $VERSION $RELEASE $pluginName $debug
 $VERSION   = '$Rev$';
 $RELEASE = 'Dakar';
 
+# add =day= aslist attribute - SvenDowideit@fosiki.com
 # add cssclasses - SvenDowideit@fosiki.com
 #port to Foswiki - SvenDowideit@fosiki.com
 #$VERSION   = '1.020'; #dab# Bug fix from TWiki:Main.MarcLangheinrich for multiday events that were not properly displayed because the first day occurred in the current month, but before the first day included in the list.
@@ -59,6 +60,10 @@ sub initPlugin
     ( $topic, $web, $user, $installWeb ) = @_;
 
     $defaultsInitialized = 0;
+    
+    #TODO: modernise when you work out how this plugin works in preview mode
+    #Foswiki::Func::registerTagHandler( 'CALENDAR', \&handleCalendar );
+    
     # return true if initialization OK
     return 1;
 }
@@ -420,11 +425,18 @@ sub handleCalendar
 	# today if the month being displayed is the current month. If
 	# it is *not* the current month, then start with day 1 of the
 	# starting month.
+	# can be over-ridden using the day= attribute 
 
 	if (($y != $currentYear) && ($m != $currentMonth)) {
 	    $listStartDay = 1;
 	} else {
 	    $listStartDay = $currentDay;
+	} 
+	my $d = scalar &Foswiki::Func::extractNameValuePair( $attributes, 'day' );
+	if (!$d || $d =~ /^(\d+)$/) {
+		$listStartDay = $1 if ($d);
+	} else {
+	    return "\n\n%<nop>CALENDAR{$attributes}% has invalid day specification.\n\n";
 	} 
 	($lastYear, $lastMonth) = Add_Delta_Days($y, $m, $listStartDay,
 						 $numDays - 1);

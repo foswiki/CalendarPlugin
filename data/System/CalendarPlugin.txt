@@ -35,7 +35,7 @@ NB. This Plugin does not, and has never, observed topic permissions.
 | ==cellalignment="left"== | Horizontal cell alignment of day cells: "left", "center", "right", "justify", "char" | "center" |
 | ==vcellalignment="middle"== | Vertical cell alignment of day cells: "top", "middle", "bottom", "baseline" | "top" |
 | ==cellheight="n"== | Height in pixels of each cell in the calendar | Minimum height needed |
-| ==format="..."== | How to highlight a date | See [[%TOPIC%#EventFormatting][Event Formatting]] below |
+| ==format="..."== | How to highlight a date. __NOTE__ make sure you use =$old= to denote the date output, otherwise you may only see one event per day. | See [[%TOPIC%#EventFormatting][Event Formatting]] below |
 | ==width="n"== or =="n%"== | Width of calendar table in pixels or percent | Minimum width needed |
 | ==border="n"== | Border width of calendar table | "1" |
 | ==nowrap="1"== or =="0"== | Prevent cell content from wrapping | "0" |
@@ -54,7 +54,10 @@ NB. This Plugin does not, and has never, observed topic permissions.
 | ==todaycolor="#nnnn"== | Background of today's cell | The web bgcolor |
 | ==todaycontentcolor="#nnnn"== | Content color of today's cell | contentcolor setting |
 | and other attributes of HTML::CalendarMonthSimple |||
-| ==aslist== | Controls whether events displayed in calendar style (=aslist=0=) or list style (=aslist=1=). Note that specifying =aslist=1= forces =showdatenumbers=1=.  This is done to ensure that the date number is formatted according to =datenumberformat= and that only the days that have an event are listed. | 0 |
+| ==aslist== | Controls whether events displayed in calendar style (=aslist=0=) or list style (=aslist=1=). \
+Note that specifying =aslist=1= forces =showdatenumbers=1= and defaults to show _only_ one day's events (see =day= and =days=).  \
+This is done to ensure that the date number is formatted according to =datenumberformat= and that only the days that have an event are listed. | 0 |
+| ==day== | Specifies the first day to show. Only valid if =aslist=1=. | 1 |
 | ==days== | Specifies how many days of calendar data to list. Only valid if =aslist=1=. | 1 |
 | ==months== | Specifies how many months of calendars to display. Only valid if =aslist=0=. | 1 |
 | ==datenumberformat== | Specifies formatting for the date number in each cell. The formatting codes accepted are the same as those for the ==%<nop>GMTIME%== variable. | '$day' (if =aslist=0=)%BR%'	* $day $mon $year' (if =aslist=1=) |
@@ -417,6 +420,7 @@ font-weight:bold;
 |  Plugin Author: | Foswiki:Main.AndreaSterbini |
 |  Plugin Version: | 28 Feb 2009 |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+| 09 March 2009: | Foswiki:Main.SvenDowideit: add =day= attribute for aslist rendering so users can select a start day |
 | 28 Feb 2009: | Foswiki:Main.SvenDowideit: add css classes and parameters so that we're not so ugly anymore |
 | 10 Feb 2009: | Foswiki:Main.SvenDowideit: port to Foswiki |
 | V1.020: | TWiki:Main.DavidBright: Bug fix from TWiki:Main.MarcLangheinrich for multiday events that were not properly displayed because the first day occurred in the current month, but before the first day included in the list. |

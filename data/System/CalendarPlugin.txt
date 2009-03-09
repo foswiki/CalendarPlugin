@@ -418,7 +418,7 @@ font-weight:bold;
 ---++ Plugin Info
 
 |  Plugin Author: | Foswiki:Main.AndreaSterbini |
-|  Plugin Version: | 28 Feb 2009 |
+|  Plugin Version: | 09 March 2009 |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
 | 09 March 2009: | Foswiki:Main.SvenDowideit: add =day= attribute for aslist rendering so users can select a start day |
 | 28 Feb 2009: | Foswiki:Main.SvenDowideit: add css classes and parameters so that we're not so ugly anymore |

@@ -17,7 +17,7 @@ use Time::Local;
 use vars qw( $web $topic $user $installWeb $VERSION $RELEASE $pluginName $debug
 	    $libsLoaded $libsError $defaultsInitialized %defaults );
 $VERSION   = '$Rev$';
-$RELEASE = 'Dakar';
+$RELEASE = '12 Aug 2009';
 
 # add =day= aslist attribute - SvenDowideit@fosiki.com
 # add cssclasses - SvenDowideit@fosiki.com
@@ -124,6 +124,7 @@ sub initDefaults
 	datenumberformat	=> undef,
 	todaydatenumberformat	=> undef,
 	multidayformat		=> undef, # Default: display description unchanged
+	eventbgcolor	=> undef,
     );
 
     # now get defaults from CalendarPlugin topic
@@ -967,7 +968,7 @@ sub highlightDay
 	$format =~ s/\$old/$old/g if defined $old;
 	$format =~ s/\$installWeb/$installWeb/g ;
 	$format =~ s/\$n/\n/g ;
-
+	$c->datecolor($day,$options{eventbgcolor}) if($option{eventbgcolor});
 	$c->setcontent($day,$format);
 }
 

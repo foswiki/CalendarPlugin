@@ -69,6 +69,7 @@ This is done to ensure that the date number is formatted according to =datenumbe
 | ==weekendcellclass== | css class given to weekendin the =showweekdayheaders= | ==weekend== |
 | ==todaycellclass== | css class given to today's element (inaddition to =cellclass=) | ==today== |
 | ==headerclass== | css class given to the header | ==calendarHeader== |
+| ==eventbgcolor== | Background color Event, when have a event in calendar | for default is undefing, you have to put some color |
 
 ---+++ Event Syntax
 
@@ -361,23 +362,8 @@ Plugin settings are stored as preferences variables. To reference a plugin setti
 
 ---++ Plugin Installation Instructions
 
-__Note:__ You do not need to install anything on the browser to use this plugin. 
-The following instructions are for the administrator who installs the plugin on the server where Foswiki is running. 
+%$INSTALL_INSTRUCTIONS%
 
-	* Download the ZIP file from the Plugin web (see below)
-	* The Plugin uses the ==HTML::CalendarMonthSimple== and ==Date::Calc== CPAN packages (see http://www.cpan.org)
-		* Install ==Date::Calc==
-		* Install ==HTML::CalendarMonthSimple==
-		* To avoid an annoying log message, change line 272 of <nop>CalendarMonthSimple.pm v1.25 by adding the section marked in %RED% RED %ENDCOLOR% :<br />
-		  <verbatim>if ($self->year = = $todayyear && $self->month = = $todaymonth %RED% && defined $thisday %ENDCOLOR% && $thisday = = $todaydate)</verbatim>
-			* For earlier or later versions where the line number may be different, search for =todayyear=. It currently (v1.22-v1.25) only appears twice: once to declare and set it, once to use it. On the line that uses it, add the =%RED%&& defined $thisday%ENDCOLOR%= as shown above. -- TWiki:Main.AngusRogerson - 16 Aug 2004
-	* Unzip ==%TOPIC%.zip== in your twiki installation directory. Content:
-	  | *File:* | *Description:* |
-	  | ==data/System/%TOPIC%.txt== | Plugin topic |
-	  | ==data/System/%TOPIC%.txt,v== | Plugin topic repository |
-	  | ==lib/Foswiki/Plugins/%TOPIC%.pm== | Plugin Perl module |
-	  | ==pub/System/%TOPIC%/exclam.gif== | Image file |
-	* Visit =configure= , and enable the plugin in the {Plugins} section.
 	* Test if the installation was successful:
 		* You should see two calendars near the Event list above and a current month calendar below (using css style section inline):
 <style>
@@ -418,8 +404,9 @@ font-weight:bold;
 ---++ Plugin Info
 
 |  Plugin Author: | Foswiki:Main.AndreaSterbini |
-|  Plugin Version: | 09 March 2009 |
+|  Plugin Version: | 12 Aug 2009 |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+| 12 Aug 2009 | Foswiki:Main.MarcelloBontempoSalgueiro: add =eventbgcolor= attribute for background color when day have a event |
 | 09 March 2009: | Foswiki:Main.SvenDowideit: add =day= attribute for aslist rendering so users can select a start day |
 | 28 Feb 2009: | Foswiki:Main.SvenDowideit: add css classes and parameters so that we're not so ugly anymore |
 | 10 Feb 2009: | Foswiki:Main.SvenDowideit: port to Foswiki |

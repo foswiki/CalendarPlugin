@@ -13,7 +13,7 @@ __NOTE__ since release 2.000, the plugin now respects access controls on
 topics containing events. You must have VIEW permission on these topics to
 be able to see the events they contain.
 
-Also since 2.004, preferences settings *in this topic* are no longer read.
+Also since 2.000, preferences settings *in this topic* are no longer read.
 Please define preferences as non-plugin preference settings instead.
 
 %TOC%

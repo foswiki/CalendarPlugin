@@ -5,7 +5,7 @@ package Foswiki::Plugins::CalendarPlugin;
 use strict;
 
 our $VERSION = '$Rev$';
-our $RELEASE = '30 Jun 2010';
+our $RELEASE = '2.000';
 our $SHORTDESCRIPTION = 'Show a monthly calendar with highlighted events';
 our $NO_PREFS_IN_TOPIC = 1;
 

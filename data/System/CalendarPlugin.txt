@@ -191,6 +191,10 @@ will be displayed.
 
 The default format is to simply display the description of the event.
 
+---+++ Other sources of calendars
+You can also use the Foswiki:Extensions.CalDAVPlugin to recover calendars from
+a !CalDAV server.
+
 ---++ Examples
 
 <table border=1 width="80%">

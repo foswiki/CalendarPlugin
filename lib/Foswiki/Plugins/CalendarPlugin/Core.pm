@@ -1347,6 +1347,45 @@ sub _highlightMultiDay {
     }
 }
 
+#this is hopefully temporary, so we can refactor the actual code so that its testable.
+sub dateparse {
+    my $text = shift;
+    my @bullets = grep { /^\s+\*/ } split( /[\n\r]+/, $text );
+    my @days;
+     
+    @days = _fetchDays( "$full_date_rx\\s+-\\s+$full_date_rx", \@bullets );
+    return join("\n", @days) if ($#days >= 0);
+    @days = _fetchDays( "$date_rx\\s+-\\s+$date_rx", \@bullets );
+    return join("\n", @days) if ($#days >= 0);
+    @days = _fetchDays( $full_date_rx, \@bullets );
+    return join("\n", @days) if ($#days >= 0);
+    @days = _fetchDays( "$anniversary_date_rx", \@bullets );
+    return join("\n", @days) if ($#days >= 0);
+    @days = _fetchDays( "$date_rx", \@bullets );
+    return join("\n", @days) if ($#days >= 0);
+    @days = _fetchDays( "$monthly_rx", \@bullets );
+    return join("\n", @days) if ($#days >= 0);
+    @days = _fetchDays( "$weekly_rx\\s+$full_date_rx\\s+-\\s+$full_date_rx", \@bullets );
+    return join("\n", @days) if ($#days >= 0);
+    @days = _fetchDays( "$weekly_rx\\s+$full_date_rx", \@bullets );
+    return join("\n", @days) if ($#days >= 0);
+    @days = _fetchDays( "$weekly_rx", \@bullets );
+    return join("\n", @days) if ($#days >= 0);
+    @days = _fetchDays( "$numdaymon_rx", \@bullets );
+    return join("\n", @days) if ($#days >= 0);
+    @days = _fetchDays( "$periodic_rx\\s+-\\s+$full_date_rx", \@bullets );
+    return join("\n", @days) if ($#days >= 0);
+    @days = _fetchDays( "$periodic_rx", \@bullets );
+    return join("\n", @days) if ($#days >= 0);
+    @days = _fetchDays( "($days_rx)", \@bullets );
+    return join("\n", @days) if ($#days >= 0);
+    
+    print STDERR "no? ".join("\n", @days)."\n" if TRACE;
+    
+    return;
+}
+
+
 1;
 __END__
 Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/

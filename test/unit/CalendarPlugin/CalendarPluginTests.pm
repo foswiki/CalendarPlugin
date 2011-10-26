@@ -15,10 +15,12 @@ use Foswiki::Plugins::CalendarPlugin::Core;
 my %coverage;
 
 END {
+    my $total = 0;
     map {
             print STDERR ":: $_ : $coverage{$_}\n";
+            $total += $coverage{$_};
         } (keys(%coverage)) ;
-    print STDERR "::: tested ".scalar(keys(%coverage))."\n";
+    print STDERR "::: tested ".scalar(keys(%coverage))." ($total)\n";
 }
 
 sub NOT_new {
@@ -86,7 +88,6 @@ sub _dateparse {
     #remove the $pattern, and add |?
     return join("\n", map {
                         my $name = shift(@$_);
-                        my $pattern = shift(@$_);
                         $coverage{$name}++;
                         print STDERR "$name matched $text\n";
                         join('|', @$_)
@@ -180,6 +181,7 @@ sub test_dateparse {
     
     #| *Periodic*: | <nobr> =&nbsp;&nbsp; * En dd MMM yyyy - description= </nobr> | E3 02 Dec 2002 - Every three days starting 02 Dec 2002 |
     #| ^ | <nobr> =&nbsp;&nbsp; * En dd MMM yyyy - dd MMM yyyy - description= </nobr> | E3 12 Apr 2005 - 31 Dec 2005 - Every three days from 12 Apr 2005 through 31 Dec 2005 (inclusive) |
+    #TODO: why not E3 Sat ?? (every third Saturday?)
     $self->assert_null(_dateparse(" * E3 Sat - test\n"));
     $self->assert_str_equals("4|27|Jan|2005|||test", _dateparse(" * E4 27 Jan 2005  - test\n"));
     $self->assert_str_equals("5|27|Jan|2005|27|Jan|2005|||test", _dateparse(" * E5 27 Jan 2005 - 27 Jan 2005 - test\n"));
@@ -193,6 +195,8 @@ sub test_dateparse {
 
 #more than one entry
     $self->assert_str_equals("09|Nov|2002|||first\n09|Dec|2002|||test", _dateparse(" * 09 Nov 2002 - first\n * 09 Dec 2002 - test\n"));
+    #different definitions..
+    $self->assert_str_equals("09|Nov|2002|||first\n09|Dec|2002|||test\nSat|||test weekly\n4|27|Jan|2005|||test periodic", _dateparse(" * 09 Nov 2002 - first\n * 09 Dec 2002 - test\n * E4 27 Jan 2005  - test periodic\n * E Sat - test weekly\n"));
 
 }
 

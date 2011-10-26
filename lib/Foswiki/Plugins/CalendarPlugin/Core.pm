@@ -52,6 +52,8 @@ my $weekly_rx           = "E\\s+($wdays_rx)";
 my $periodic_rx         = "E([0-9]+)\\s+$full_date_rx";
 my $numdaymon_rx        = "([0-9L])\\s+($wdays_rx)\\s+($months_rx)";
 
+#TODO: really should replace this naive regex code with a parser that can build up dates using the &dash's as delimiters.
+#or, as a slightly lazyer option, remove the need for an 'ordered' processing by using the &dash..
 #accepted date and interval definitions
 my %parse_definitions = (
     'intervals with year' =>
@@ -570,25 +572,24 @@ MESSAGE
 
         #render events
         foreach my $d (@allDates) {
+            my @xmap;
+            my $xcstr = $d->[scalar(@$d)-1];
+            if ( length($xcstr) > 9 ) {
+                @xmap = _fetchxmap( $xcstr, $y, $m );
+            }
+            else {
+                @xmap = _emptyxmap( $y, $m );
+            }
 
             # collect all date intervals with year
             my $multidaycounter = 0;
             if ( $d->[0] eq 'intervals with year' ) {
-
                 my (
                     $name, $dd1, $mm1, $yy1,   $dd2,
                     $mm2,  $yy2, $xs,  $xcstr, $descr
                 ) = @$d;
                 $multidaycounter++;    # Identify this event
                 eval {
-                    my @xmap;
-
-                    if ( length($xcstr) > 9 ) {
-                        @xmap = _fetchxmap( $xcstr, $y, $m );
-                    }
-                    else {
-                        @xmap = _emptyxmap( $y, $m );
-                    }
                     my $date1 =
                       Date::Calc::Date_to_Days( $yy1, $months{$mm1}, $dd1 );
                     my $date2 =
@@ -624,18 +625,9 @@ MESSAGE
             # then collect all intervals without year
             $multidaycounter = 0;
             if ( $d->[0] eq 'intervals without year' ) {
-
                 my ( $name, $dd1, $mm1, $dd2, $mm2, $xs, $xcstr, $descr ) = @$d;
                 $multidaycounter++;    # Identify this event
                 eval {
-                    my @xmap;
-
-                    if ( length($xcstr) > 9 ) {
-                        @xmap = _fetchxmap( $xcstr, $y, $m );
-                    }
-                    else {
-                        @xmap = _emptyxmap( $y, $m );
-                    }
                     my $date1 =
                       Date::Calc::Date_to_Days( $y, $months{$mm1}, $dd1 );
                     my $date2 =
@@ -670,7 +662,6 @@ MESSAGE
 
             # first collect all dates with year
             if ( $d->[0] eq 'dates with year' ) {
-
                 my ( $name, $dd, $mm, $yy, $xs, $xcstr, $descr ) = @$d;
                 eval {
                     if ( $yy == $y && $months{$mm} == $m )
@@ -684,7 +675,6 @@ MESSAGE
 
             # collect all anniversary dates
             if ( $d->[0] eq 'anniversary dates' ) {
-
                 my ( $name, $dd, $mm, $yy, $xs, $xcstr, $descr ) = @$d;
                 eval {
                     if ( $yy <= $y && $months{$mm} == $m )
@@ -716,13 +706,6 @@ MESSAGE
 
                 my ( $name, $dd, $mm, $xs, $xcstr, $descr ) = @$d;
                 eval {
-                    my @xmap;
-                    if ( length($xcstr) > 9 ) {
-                        @xmap = _fetchxmap( $xcstr, $y, $m );
-                    }
-                    else {
-                        @xmap = _emptyxmap( $y, $m );
-                    }
                     if ( $months{$mm} == $m && $xmap[$dd] ) {
                         _highlightDay( $cal, $dd, $descr, %options );
                     }
@@ -733,16 +716,8 @@ MESSAGE
 
             # collect monthly repeaters
             if ( $d->[0] eq 'monthly repeaters' ) {
-
                 my ( $name, $nn, $dd, $xs, $xcstr, $descr ) = @$d;
                 eval {
-                    my @xmap;
-                    if ( length($xcstr) > 9 ) {
-                        @xmap = _fetchxmap( $xcstr, $y, $m );
-                    }
-                    else {
-                        @xmap = _emptyxmap( $y, $m );
-                    }
                     my $hd;
                     if ( $nn eq 'L' ) {
                         $nn = 6;
@@ -770,19 +745,12 @@ MESSAGE
 
             # collect weekly repeaters with start and end dates
             if ( $d->[0] eq 'weekly repeaters with start and end dates' ) {
-
                 my (
                     $name, $dd,  $dd1, $mm1,   $yy1, $dd2,
                     $mm2,  $yy2, $xs,  $xcstr, $descr
                 ) = @$d;
                 eval {
-                    my @xmap;
-                    if ( length($xcstr) > 9 ) {
-                        @xmap = _fetchxmap( $xcstr, $y, $m );
-                    }
-                    else {
-                        @xmap = _emptyxmap( $y, $m );
-                    }
+
                     my $date1 =
                       Date::Calc::Date_to_Days( $yy1, $months{$mm1}, $dd1 );
                     my $date2 =
@@ -810,13 +778,6 @@ MESSAGE
 
                 my ( $name, $dd, $dd1, $mm1, $yy1, $xs, $xcstr, $descr ) = @$d;
                 eval {
-                    my @xmap;
-                    if ( length($xcstr) > 9 ) {
-                        @xmap = _fetchxmap( $xcstr, $y, $m );
-                    }
-                    else {
-                        @xmap = _emptyxmap( $y, $m );
-                    }
                     my $date1 =
                       Date::Calc::Date_to_Days( $yy1, $months{$mm1}, $dd1 );
                     my ( $ny, $nm );
@@ -841,13 +802,6 @@ MESSAGE
 
                 my ( $name, $dd, $xs, $xcstr, $descr ) = @$d;
                 eval {
-                    my @xmap;
-                    if ( length($xcstr) > 9 ) {
-                        @xmap = _fetchxmap( $xcstr, $y, $m );
-                    }
-                    else {
-                        @xmap = _emptyxmap( $y, $m );
-                    }
                     my ( $ny, $nm );
                     my $hd =
                       Date::Calc::Nth_Weekday_of_Month_Year( $y, $m,
@@ -870,13 +824,6 @@ MESSAGE
                 my ( $name, $dd, $dy, $mn, $xs, $xcstr, $descr ) = @$d;
                 eval {
                     $mn = $months{$mn};
-                    my @xmap;
-                    if ( length($xcstr) > 9 ) {
-                        @xmap = _fetchxmap( $xcstr, $y, $m );
-                    }
-                    else {
-                        @xmap = _emptyxmap( $y, $m );
-                    }
                     if ( $mn == $m ) {
                         my $hd;
                         if ( $dd eq 'L' ) {
@@ -910,13 +857,6 @@ MESSAGE
                     $mm2,  $yy2, $xs,  $xcstr, $descr
                 ) = @$d;
                 eval {
-                    my @xmap;
-                    if ( length($xcstr) > 9 ) {
-                        @xmap = _fetchxmap( $xcstr, $y, $m );
-                    }
-                    else {
-                        @xmap = _emptyxmap( $y, $m );
-                    }
                     $mm1 = $months{$mm1};
                     while ( $yy1 < $y || ( $yy1 == $y && $mm1 < $m ) ) {
                         ( $yy1, $mm1, $dd1 ) =
@@ -942,13 +882,6 @@ MESSAGE
 
                 my ( $name, $p, $dd, $mm, $yy, $xs, $xcstr, $descr ) = @$d;
                 eval {
-                    my @xmap;
-                    if ( length($xcstr) > 9 ) {
-                        @xmap = _fetchxmap( $xcstr, $y, $m );
-                    }
-                    else {
-                        @xmap = _emptyxmap( $y, $m );
-                    }
                     $mm = $months{$mm};
                     if ( ( $mm <= $m && $yy == $y ) || ( $yy < $y ) ) {
                         while ( $yy < $y || ( $yy == $y && $mm < $m ) ) {
@@ -973,13 +906,6 @@ MESSAGE
 
                 my ( $name, $dd, $xs, $xcstr, $descr ) = @$d;
                 eval {
-                    my @xmap;
-                    if ( length($xcstr) > 9 ) {
-                        @xmap = _fetchxmap( $xcstr, $y, $m );
-                    }
-                    else {
-                        @xmap = _emptyxmap( $y, $m );
-                    }
                     if (   $dd > 0
                         && $dd <= Date::Calc::Days_in_Month( $y, $m )
                         && $xmap[$dd] )

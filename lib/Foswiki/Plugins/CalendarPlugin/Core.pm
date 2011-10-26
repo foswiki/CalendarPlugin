@@ -139,8 +139,8 @@ sub _fetchDays {
 
     $pattern = "^\\s*\\*\\s+$pattern(\\s+X\\s+{(.+)})?\\s+-\\s+(.*)\$";
     my @res = map {
-        join '|',
-          ( map { $_ || '' } m/$pattern/ )
+          my @arr = ( map { $_ || '' } m/$pattern/ );
+          \@arr
       }
       grep { m/$pattern/ } @$refBullets;
 
@@ -558,7 +558,7 @@ MESSAGE
         my $multidaycounter = 0;
         foreach $d (@days) {
             my ( $dd1, $mm1, $yy1, $dd2, $mm2, $yy2, $xs, $xcstr, $descr ) =
-              split( /\|/, $d );
+              @$d;
             $multidaycounter++;    # Identify this event
             eval {
                 my @xmap;
@@ -606,7 +606,7 @@ MESSAGE
         $multidaycounter = 0;
         foreach $d (@days) {
             my ( $dd1, $mm1, $dd2, $mm2, $xs, $xcstr, $descr ) =
-              split( /\|/, $d );
+              @$d;
             $multidaycounter++;    # Identify this event
             eval {
                 my @xmap;
@@ -650,7 +650,7 @@ MESSAGE
         # first collect all dates with year
         @days = _fetchDays( $full_date_rx, \@bullets );
         foreach $d (@days) {
-            my ( $dd, $mm, $yy, $xs, $xcstr, $descr ) = split( /\|/, $d );
+            my ( $dd, $mm, $yy, $xs, $xcstr, $descr ) = @$d;
             eval {
                 if ( $yy == $y && $months{$mm} == $m )
                 {
@@ -664,7 +664,7 @@ MESSAGE
         # collect all anniversary dates
         @days = _fetchDays( "$anniversary_date_rx", \@bullets );
         foreach $d (@days) {
-            my ( $dd, $mm, $yy, $xs, $xcstr, $descr ) = split( /\|/, $d );
+            my ( $dd, $mm, $yy, $xs, $xcstr, $descr ) = @$d;
             eval {
                 if ( $yy <= $y && $months{$mm} == $m )
                 {
@@ -693,7 +693,7 @@ MESSAGE
         # then collect all dates without year
         @days = _fetchDays( "$date_rx", \@bullets );
         foreach $d (@days) {
-            my ( $dd, $mm, $xs, $xcstr, $descr ) = split( /\|/, $d );
+            my ( $dd, $mm, $xs, $xcstr, $descr ) = @$d;
             eval {
                 my @xmap;
                 if ( length($xcstr) > 9 ) {
@@ -713,7 +713,7 @@ MESSAGE
         # collect monthly repeaters
         @days = _fetchDays( "$monthly_rx", \@bullets );
         foreach $d (@days) {
-            my ( $nn, $dd, $xs, $xcstr, $descr ) = split( /\|/, $d );
+            my ( $nn, $dd, $xs, $xcstr, $descr ) = @$d;
             eval {
                 my @xmap;
                 if ( length($xcstr) > 9 ) {
@@ -751,7 +751,7 @@ MESSAGE
             \@bullets );
         foreach $d (@days) {
             my ( $dd, $dd1, $mm1, $yy1, $dd2, $mm2, $yy2, $xs, $xcstr, $descr )
-              = split( /\|/, $d );
+              = @$d;
             eval {
                 my @xmap;
                 if ( length($xcstr) > 9 ) {
@@ -785,7 +785,7 @@ MESSAGE
         @days = _fetchDays( "$weekly_rx\\s+$full_date_rx", \@bullets );
         foreach $d (@days) {
             my ( $dd, $dd1, $mm1, $yy1, $xs, $xcstr, $descr ) =
-              split( /\|/, $d );
+              @$d;
             eval {
                 my @xmap;
                 if ( length($xcstr) > 9 ) {
@@ -816,7 +816,7 @@ MESSAGE
         # collect weekly repeaters
         @days = _fetchDays( "$weekly_rx", \@bullets );
         foreach $d (@days) {
-            my ( $dd, $xs, $xcstr, $descr ) = split( /\|/, $d );
+            my ( $dd, $xs, $xcstr, $descr ) = @$d;
             eval {
                 my @xmap;
                 if ( length($xcstr) > 9 ) {
@@ -844,7 +844,7 @@ MESSAGE
         # collect num-day-mon repeaters
         @days = _fetchDays( "$numdaymon_rx", \@bullets );
         foreach $d (@days) {
-            my ( $dd, $dy, $mn, $xs, $xcstr, $descr ) = split( /\|/, $d );
+            my ( $dd, $dy, $mn, $xs, $xcstr, $descr ) = @$d;
             eval {
                 $mn = $months{$mn};
                 my @xmap;
@@ -883,7 +883,7 @@ MESSAGE
         @days = _fetchDays( "$periodic_rx\\s+-\\s+$full_date_rx", \@bullets );
         foreach $d (@days) {
             my ( $p, $dd1, $mm1, $yy1, $dd2, $mm2, $yy2, $xs, $xcstr, $descr ) =
-              split( /\|/, $d );
+              @$d;
             eval {
                 my @xmap;
                 if ( length($xcstr) > 9 ) {
@@ -915,7 +915,7 @@ MESSAGE
         # collect periodic repeaters
         @days = _fetchDays( "$periodic_rx", \@bullets );
         foreach $d (@days) {
-            my ( $p, $dd, $mm, $yy, $xs, $xcstr, $descr ) = split( /\|/, $d );
+            my ( $p, $dd, $mm, $yy, $xs, $xcstr, $descr ) = @$d;
             eval {
                 my @xmap;
                 if ( length($xcstr) > 9 ) {
@@ -946,7 +946,7 @@ MESSAGE
         # collect date monthly repeaters
         @days = _fetchDays( "($days_rx)", \@bullets );
         foreach $d (@days) {
-            my ( $dd, $xs, $xcstr, $descr ) = split( /\|/, $d );
+            my ( $dd, $xs, $xcstr, $descr ) = @$d;
             eval {
                 my @xmap;
                 if ( length($xcstr) > 9 ) {
@@ -1354,33 +1354,33 @@ sub dateparse {
     my @days;
      
     @days = _fetchDays( "$full_date_rx\\s+-\\s+$full_date_rx", \@bullets );
-    return join("\n", @days) if ($#days >= 0);
+    return join("\n", map {join('|', @$_)} @days) if ($#days >= 0);
     @days = _fetchDays( "$date_rx\\s+-\\s+$date_rx", \@bullets );
-    return join("\n", @days) if ($#days >= 0);
+    return join("\n", map {join('|', @$_)} @days) if ($#days >= 0);
     @days = _fetchDays( $full_date_rx, \@bullets );
-    return join("\n", @days) if ($#days >= 0);
+    return join("\n", map {join('|', @$_)} @days) if ($#days >= 0);
     @days = _fetchDays( "$anniversary_date_rx", \@bullets );
-    return join("\n", @days) if ($#days >= 0);
+    return join("\n", map {join('|', @$_)} @days) if ($#days >= 0);
     @days = _fetchDays( "$date_rx", \@bullets );
-    return join("\n", @days) if ($#days >= 0);
+    return join("\n", map {join('|', @$_)} @days) if ($#days >= 0);
     @days = _fetchDays( "$monthly_rx", \@bullets );
-    return join("\n", @days) if ($#days >= 0);
+    return join("\n", map {join('|', @$_)} @days) if ($#days >= 0);
     @days = _fetchDays( "$weekly_rx\\s+$full_date_rx\\s+-\\s+$full_date_rx", \@bullets );
-    return join("\n", @days) if ($#days >= 0);
+    return join("\n", map {join('|', @$_)} @days) if ($#days >= 0);
     @days = _fetchDays( "$weekly_rx\\s+$full_date_rx", \@bullets );
-    return join("\n", @days) if ($#days >= 0);
+    return join("\n", map {join('|', @$_)} @days) if ($#days >= 0);
     @days = _fetchDays( "$weekly_rx", \@bullets );
-    return join("\n", @days) if ($#days >= 0);
+    return join("\n", map {join('|', @$_)} @days) if ($#days >= 0);
     @days = _fetchDays( "$numdaymon_rx", \@bullets );
-    return join("\n", @days) if ($#days >= 0);
+    return join("\n", map {join('|', @$_)} @days) if ($#days >= 0);
     @days = _fetchDays( "$periodic_rx\\s+-\\s+$full_date_rx", \@bullets );
-    return join("\n", @days) if ($#days >= 0);
+    return join("\n", map {join('|', @$_)} @days) if ($#days >= 0);
     @days = _fetchDays( "$periodic_rx", \@bullets );
-    return join("\n", @days) if ($#days >= 0);
+    return join("\n", map {join('|', @$_)} @days) if ($#days >= 0);
     @days = _fetchDays( "($days_rx)", \@bullets );
-    return join("\n", @days) if ($#days >= 0);
+    return join("\n", map {join('|', @$_)} @days) if ($#days >= 0);
     
-    print STDERR "no? ".join("\n", @days)."\n" if TRACE;
+    print STDERR "no? ".join("\n", map {join('|', @$_)} @days)."\n" if TRACE;
     
     return;
 }

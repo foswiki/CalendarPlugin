@@ -87,10 +87,10 @@ sub _dateparse {
     return if ($#days < 0);
     #remove the $pattern, and add |?
     return join("\n", map {
-                        my $name = shift(@$_);
+                        my $name = $_->{name};
                         $coverage{$name}++;
-                        print STDERR "$name matched $text\n";
-                        join('|', @$_)
+                        #unwrap the hash into the ordered data set that was in CalendarPlugin for the last 10 years
+                        join('|', @$_{grep {$_ ne 'name'} @{$Foswiki::Plugins::CalendarPlugin::Core::parse_definitions{$name}->{keys}}})
                       } @days);
 }
 

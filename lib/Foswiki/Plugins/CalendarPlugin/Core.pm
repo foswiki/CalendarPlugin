@@ -55,24 +55,66 @@ my $numdaymon_rx        = "([0-9L])\\s+($wdays_rx)\\s+($months_rx)";
 #TODO: really should replace this naive regex code with a parser that can build up dates using the &dash's as delimiters.
 #or, as a slightly lazyer option, remove the need for an 'ordered' processing by using the &dash..
 #accepted date and interval definitions
-my %parse_definitions = (
-    'intervals with year' =>
-      { pattern => "$full_date_rx\\s+-\\s+$full_date_rx" },
-    'intervals without year' => { pattern => "$date_rx\\s+-\\s+$date_rx" },
-    'dates with year'        => { pattern => $full_date_rx },
-    'anniversary dates'      => { pattern => "$anniversary_date_rx" },
-    'dates without year'     => { pattern => "$date_rx" },
-    'monthly repeaters'      => { pattern => "$monthly_rx" },
-    'weekly repeaters with start and end dates' =>
-      { pattern => "$weekly_rx\\s+$full_date_rx\\s+-\\s+$full_date_rx" },
-    'weekly repeaters with start dates' =>
-      { pattern => "$weekly_rx\\s+$full_date_rx" },
-    'weekly repeaters'      => { pattern => "$weekly_rx" },
-    'num-day-mon repeaters' => { pattern => "$numdaymon_rx" },
-    'periodic repeaters with start and end dates' =>
-      { pattern => "$periodic_rx\\s+-\\s+$full_date_rx" },
-    'periodic repeaters'     => { pattern => "$periodic_rx" },
-    'date monthly repeaters' => { pattern => "($days_rx)" },
+
+#using our for the CalendarPluginTests
+our %parse_definitions = (
+    'intervals with year' => {
+        pattern => "$full_date_rx\\s+-\\s+$full_date_rx",
+        keys    => [qw(name dd1 mm1 yy1   dd2 mm2  yy2 xs  xcstr descr )]
+    },
+    'intervals without year' => {
+        pattern => "$date_rx\\s+-\\s+$date_rx",
+        keys    => [qw(name dd1 mm1 dd2 mm2 xs xcstr descr )]
+    },
+    'weekly repeaters with start and end dates' => {
+        pattern => "$weekly_rx\\s+$full_date_rx\\s+-\\s+$full_date_rx",
+        keys    => [qw(name dd  dd1 mm1   yy1 dd2 mm2  yy2 xs  xcstr descr )]
+    },
+    'weekly repeaters with start dates' => {
+        pattern => "$weekly_rx\\s+$full_date_rx",
+        keys    => [qw(name dd dd1 mm1 yy1 xs xcstr descr )]
+    },
+    'periodic repeaters with start and end dates' => {
+        pattern => "$periodic_rx\\s+-\\s+$full_date_rx",
+        keys    => [qw(name p   dd1 mm1   yy1 dd2 mm2  yy2 xs  xcstr descr )]
+    },
+    'dates with year' =>
+      { 
+        pattern => $full_date_rx, 
+        keys => [qw(name dd mm yy xs xcstr descr )] 
+     },
+    'anniversary dates' => {
+        pattern => "$anniversary_date_rx",
+        keys    => [qw(name dd mm yy xs xcstr descr )]
+    },
+    'dates without year' =>
+      { 
+        pattern => "$date_rx", 
+        keys => [qw(name dd mm xs xcstr descr )] 
+    },
+    'monthly repeaters' =>
+     { 
+          pattern => "$monthly_rx", 
+          keys => [qw(name nn dd xs xcstr descr )] 
+    },
+    'weekly repeaters' =>
+      { 
+          pattern => "$weekly_rx", 
+          keys => [qw(name dd xs xcstr descr )] 
+      },
+    'num-day-mon repeaters' => {
+        pattern => "$numdaymon_rx",
+        keys    => [qw(name dd dy mn xs xcstr descr )]
+    },
+    'periodic repeaters' => {
+        pattern => "$periodic_rx",
+        keys    => [qw(name p dd mm yy xs xcstr descr )]
+    },
+    'date monthly repeaters' =>
+      { 
+          pattern => "($days_rx)", 
+        keys => [qw(name dd xs xcstr descr )] 
+     },
 );
 
 our $expanding = 0;    # recursion block
@@ -163,13 +205,17 @@ sub _parseAllDates {
     ASSERT( ref($refBullets) eq 'ARRAY' ) if DEBUG;
     ASSERT( ref($refDays)    eq 'ARRAY' ) if DEBUG;
 
+    return unless ( defined( $parse_definitions{$patternname} ) );
+    return unless ( defined( $parse_definitions{$patternname}->{pattern} ) );
+
     my $datepattern = $parse_definitions{$patternname}->{pattern};
     my $pattern = "^\\s*\\*\\s+$datepattern(\\s+X\\s+{(.+)})?\\s+-\\s+(.*)\$";
 
     my @res = map {
-        #TODO: convert this vague array into a useful hash (means putting the list of keys into the parse_definitions, and then slicing in.
-        my @arr = ( $patternname, map { $_ || '' } m/$pattern/ );
-        \@arr
+        my %d;
+        @d{ @{ $parse_definitions{$patternname}->{keys} } } =
+          ( $patternname, map { $_ || '' } m/$pattern/ );
+        \%d
       }
       grep { m/$pattern/ } @$refBullets;
     push( @$refDays, @res );
@@ -573,9 +619,8 @@ MESSAGE
         #render events
         foreach my $d (@allDates) {
             my @xmap;
-            my $xcstr = $d->[scalar(@$d)-1];
-            if ( length($xcstr) > 9 ) {
-                @xmap = _fetchxmap( $xcstr, $y, $m );
+            if ( length( $d->{xcstr} ) > 9 ) {
+                @xmap = _fetchxmap( $d->{xcstr}, $y, $m );
             }
             else {
                 @xmap = _emptyxmap( $y, $m );
@@ -583,30 +628,35 @@ MESSAGE
 
             # collect all date intervals with year
             my $multidaycounter = 0;
-            if ( $d->[0] eq 'intervals with year' ) {
-                my (
-                    $name, $dd1, $mm1, $yy1,   $dd2,
-                    $mm2,  $yy2, $xs,  $xcstr, $descr
-                ) = @$d;
+            if ( $d->{name} eq 'intervals with year' ) {
                 $multidaycounter++;    # Identify this event
                 eval {
                     my $date1 =
-                      Date::Calc::Date_to_Days( $yy1, $months{$mm1}, $dd1 );
+                      Date::Calc::Date_to_Days( $d->{yy1}, $months{ $d->{mm1} },
+                        $d->{dd1} );
                     my $date2 =
-                      Date::Calc::Date_to_Days( $yy2, $months{$mm2}, $dd2 );
+                      Date::Calc::Date_to_Days( $d->{yy2}, $months{ $d->{mm2} },
+                        $d->{dd2} );
 
                     # Process events starting at the first day to be included in
                     # the list, or the first day of the month, whichever is
                     # appropriate
 
-                    for my $d ( ( defined $listStartDay ? $listStartDay : 1 )
+                    for my $day_loop (
+                        ( defined $listStartDay ? $listStartDay : 1 )
                         .. Date::Calc::Days_in_Month( $y, $m ) )
                     {
-                        my $date = Date::Calc::Date_to_Days( $y, $m, $d );
-                        if ( $date1 <= $date && $date <= $date2 && $xmap[$d] ) {
+                        my $date =
+                          Date::Calc::Date_to_Days( $y, $m, $day_loop );
+                        if (   $date1 <= $date
+                            && $date <= $date2
+                            && $xmap[$day_loop] )
+                        {
                             _highlightMultiDay(
-                                $cal,   $d, $descr, $date1,
-                                $date2, $date,
+                                $cal,
+                                $day_loop,
+                                $d->{descr},
+                                $date1, $date2, $date,
                                 defined(
                                     $multidayeventswithyear{$multidaycounter}
                                 ),
@@ -624,27 +674,35 @@ MESSAGE
 
             # then collect all intervals without year
             $multidaycounter = 0;
-            if ( $d->[0] eq 'intervals without year' ) {
-                my ( $name, $dd1, $mm1, $dd2, $mm2, $xs, $xcstr, $descr ) = @$d;
+            if ( $d->{name} eq 'intervals without year' ) {
                 $multidaycounter++;    # Identify this event
                 eval {
                     my $date1 =
-                      Date::Calc::Date_to_Days( $y, $months{$mm1}, $dd1 );
+                      Date::Calc::Date_to_Days( $y, $months{ $d->{mm1} },
+                        $d->{dd1} );
                     my $date2 =
-                      Date::Calc::Date_to_Days( $y, $months{$mm2}, $dd2 );
+                      Date::Calc::Date_to_Days( $y, $months{ $d->{mm2} },
+                        $d->{dd2} );
 
                     # Process events starting at the first day to be included in
                     # the list, or the first day of the month, whichever is
                     # appropriate
 
-                    for my $d ( ( defined $listStartDay ? $listStartDay : 1 )
+                    for my $day_loop (
+                        ( defined $listStartDay ? $listStartDay : 1 )
                         .. Date::Calc::Days_in_Month( $y, $m ) )
                     {
-                        my $date = Date::Calc::Date_to_Days( $y, $m, $d );
-                        if ( $date1 <= $date && $date <= $date2 && $xmap[$d] ) {
+                        my $date =
+                          Date::Calc::Date_to_Days( $y, $m, $day_loop );
+                        if (   $date1 <= $date
+                            && $date <= $date2
+                            && $xmap[$day_loop] )
+                        {
                             _highlightMultiDay(
-                                $cal,   $d, $descr, $date1,
-                                $date2, $date,
+                                $cal,
+                                $day_loop,
+                                $d->{descr},
+                                $date1, $date2, $date,
                                 defined(
                                     $multidayeventswithoutyear{$multidaycounter}
                                 ),
@@ -661,12 +719,11 @@ MESSAGE
             }
 
             # first collect all dates with year
-            if ( $d->[0] eq 'dates with year' ) {
-                my ( $name, $dd, $mm, $yy, $xs, $xcstr, $descr ) = @$d;
+            if ( $d->{name} eq 'dates with year' ) {
                 eval {
-                    if ( $yy == $y && $months{$mm} == $m )
+                    if ( $d->{yy} == $y && $months{ $d->{mm} } == $m )
                     {
-                        _highlightDay( $cal, $dd, $descr, %options );
+                        _highlightDay( $cal, $d->{dd}, $d->{descr}, %options );
                     }
                 };
                 Foswiki::Func::writeWarning( PLUGINNAME . ": $@ " )
@@ -674,10 +731,9 @@ MESSAGE
             }
 
             # collect all anniversary dates
-            if ( $d->[0] eq 'anniversary dates' ) {
-                my ( $name, $dd, $mm, $yy, $xs, $xcstr, $descr ) = @$d;
+            if ( $d->{name} eq 'anniversary dates' ) {
                 eval {
-                    if ( $yy <= $y && $months{$mm} == $m )
+                    if ( $d->{yy} <= $y && $months{ $d->{mm} } == $m )
                     {
 
                         # Annotate anniversaries with the number of years
@@ -688,13 +744,13 @@ MESSAGE
                         # "X's Birthday (3)", meaning that they are 3
                         # years old.
 
-                        my $elapsed = $y - $yy;
+                        my $elapsed = $y - $d->{yy};
                         my $elapsed_indicator =
                           ( $elapsed > 0 )
                           ? " ($elapsed)"
                           : '';
-                        _highlightDay( $cal, $dd, $descr . $elapsed_indicator,
-                            %options );
+                        _highlightDay( $cal, $d->{dd},
+                            $d->{descr} . $elapsed_indicator, %options );
                     }
                 };
                 Foswiki::Func::writeWarning( PLUGINNAME . ": $@ " )
@@ -702,12 +758,11 @@ MESSAGE
             }
 
             # then collect all dates without year
-            if ( $d->[0] eq 'dates without year' ) {
-
-                my ( $name, $dd, $mm, $xs, $xcstr, $descr ) = @$d;
+            if ( $d->{name} eq 'dates without year' ) {
                 eval {
-                    if ( $months{$mm} == $m && $xmap[$dd] ) {
-                        _highlightDay( $cal, $dd, $descr, %options );
+                    if ( $months{ $d->{mm} } == $m && $xmap[ $d->{dd} ] )
+                    {
+                        _highlightDay( $cal, $d->{dd}, $d->{descr}, %options );
                     }
                 };
                 Foswiki::Func::writeWarning( PLUGINNAME . ": $@ " )
@@ -715,28 +770,29 @@ MESSAGE
             }
 
             # collect monthly repeaters
-            if ( $d->[0] eq 'monthly repeaters' ) {
-                my ( $name, $nn, $dd, $xs, $xcstr, $descr ) = @$d;
+            if ( $d->{name} eq 'monthly repeaters' ) {
                 eval {
                     my $hd;
-                    if ( $nn eq 'L' ) {
-                        $nn = 6;
+                    if ( $d->{nn} eq 'L' ) {
+                        $d->{nn} = 6;
                         do {
-                            $nn--;
+                            $d->{nn}--;
                             $hd =
                               Date::Calc::Nth_Weekday_of_Month_Year( $y, $m,
-                                $wdays{$dd}, $nn );
+                                $wdays{ $d->{dd} },
+                                $d->{nn} );
                         } until ($hd);
                     }
                     else {
                         $hd =
                           Date::Calc::Nth_Weekday_of_Month_Year( $y, $m,
-                            $wdays{$dd}, $nn );
+                            $wdays{ $d->{dd} },
+                            $d->{nn} );
                     }
                     if (   $hd <= Date::Calc::Days_in_Month( $y, $m )
                         && $xmap[$hd] )
                     {
-                        _highlightDay( $cal, $hd, $descr, %options );
+                        _highlightDay( $cal, $hd, $d->{descr}, %options );
                     }
                 };
                 Foswiki::Func::writeWarning( PLUGINNAME . ": $@ " )
@@ -744,26 +800,24 @@ MESSAGE
             }
 
             # collect weekly repeaters with start and end dates
-            if ( $d->[0] eq 'weekly repeaters with start and end dates' ) {
-                my (
-                    $name, $dd,  $dd1, $mm1,   $yy1, $dd2,
-                    $mm2,  $yy2, $xs,  $xcstr, $descr
-                ) = @$d;
+            if ( $d->{name} eq 'weekly repeaters with start and end dates' ) {
                 eval {
 
                     my $date1 =
-                      Date::Calc::Date_to_Days( $yy1, $months{$mm1}, $dd1 );
+                      Date::Calc::Date_to_Days( $d->{yy1}, $months{ $d->{mm1} },
+                        $d->{dd1} );
                     my $date2 =
-                      Date::Calc::Date_to_Days( $yy2, $months{$mm2}, $dd2 );
+                      Date::Calc::Date_to_Days( $d->{yy2}, $months{ $d->{mm2} },
+                        $d->{dd2} );
                     my ( $ny, $nm );
                     my $hd =
                       Date::Calc::Nth_Weekday_of_Month_Year( $y, $m,
-                        $wdays{$dd}, 1 );
+                        $wdays{ $d->{dd} }, 1 );
                     do {
                         my $date = Date::Calc::Date_to_Days( $y, $m, $hd );
                         if ( $xmap[$hd] && $date1 <= $date && $date <= $date2 )
                         {
-                            _highlightDay( $cal, $hd, $descr, %options );
+                            _highlightDay( $cal, $hd, $d->{descr}, %options );
                         }
                         ( $ny, $nm, $hd ) =
                           Date::Calc::Add_Delta_Days( $y, $m, $hd, 7 );
@@ -774,20 +828,19 @@ MESSAGE
             }
 
             # collect weekly repeaters with start dates
-            if ( $d->[0] eq 'weekly repeaters with start dates' ) {
-
-                my ( $name, $dd, $dd1, $mm1, $yy1, $xs, $xcstr, $descr ) = @$d;
+            if ( $d->{name} eq 'weekly repeaters with start dates' ) {
                 eval {
                     my $date1 =
-                      Date::Calc::Date_to_Days( $yy1, $months{$mm1}, $dd1 );
+                      Date::Calc::Date_to_Days( $d->{yy1}, $months{ $d->{mm1} },
+                        $d->{dd1} );
                     my ( $ny, $nm );
                     my $hd =
                       Date::Calc::Nth_Weekday_of_Month_Year( $y, $m,
-                        $wdays{$dd}, 1 );
+                        $wdays{ $d->{dd} }, 1 );
                     do {
                         my $date = Date::Calc::Date_to_Days( $y, $m, $hd );
                         if ( $xmap[$hd] && $date1 <= $date ) {
-                            _highlightDay( $cal, $hd, $descr, %options );
+                            _highlightDay( $cal, $hd, $d->{descr}, %options );
                         }
                         ( $ny, $nm, $hd ) =
                           Date::Calc::Add_Delta_Days( $y, $m, $hd, 7 );
@@ -798,17 +851,15 @@ MESSAGE
             }
 
             # collect weekly repeaters
-            if ( $d->[0] eq 'weekly repeaters' ) {
-
-                my ( $name, $dd, $xs, $xcstr, $descr ) = @$d;
+            if ( $d->{name} eq 'weekly repeaters' ) {
                 eval {
                     my ( $ny, $nm );
                     my $hd =
                       Date::Calc::Nth_Weekday_of_Month_Year( $y, $m,
-                        $wdays{$dd}, 1 );
+                        $wdays{ $d->{dd} }, 1 );
                     do {
                         if ( $xmap[$hd] ) {
-                            _highlightDay( $cal, $hd, $descr, %options );
+                            _highlightDay( $cal, $hd, $d->{descr}, %options );
                         }
                         ( $ny, $nm, $hd ) =
                           Date::Calc::Add_Delta_Days( $y, $m, $hd, 7 );
@@ -819,29 +870,29 @@ MESSAGE
             }
 
             # collect num-day-mon repeaters
-            if ( $d->[0] eq 'num-day-mon repeaters' ) {
-
-                my ( $name, $dd, $dy, $mn, $xs, $xcstr, $descr ) = @$d;
+            if ( $d->{name} eq 'num-day-mon repeaters' ) {
                 eval {
-                    $mn = $months{$mn};
-                    if ( $mn == $m ) {
+                    $d->{mn} = $months{ $d->{mn} };
+                    if ( $d->{mn} == $m ) {
                         my $hd;
-                        if ( $dd eq 'L' ) {
-                            $dd = 6;
+                        if ( $d->{dd} eq 'L' ) {
+                            $d->{dd} = 6;
                             do {
-                                $dd--;
+                                $d->{dd}--;
                                 $hd =
                                   Date::Calc::Nth_Weekday_of_Month_Year( $y, $m,
-                                    $wdays{$dy}, $dd );
+                                    $wdays{ $d->{dy} },
+                                    $d->{dd} );
                             } until ($hd);
                         }
                         else {
                             $hd =
                               Date::Calc::Nth_Weekday_of_Month_Year( $y, $m,
-                                $wdays{$dy}, $dd );
+                                $wdays{ $d->{dy} },
+                                $d->{dd} );
                         }
                         if ( $xmap[$hd] ) {
-                            _highlightDay( $cal, $hd, $descr, %options );
+                            _highlightDay( $cal, $hd, $d->{descr}, %options );
                         }
                     }
                 };
@@ -850,27 +901,30 @@ MESSAGE
             }
 
             # collect periodic repeaters with start and end dates
-            if ( $d->[0] eq 'periodic repeaters with start and end dates' ) {
-
-                my (
-                    $name, $p,   $dd1, $mm1,   $yy1, $dd2,
-                    $mm2,  $yy2, $xs,  $xcstr, $descr
-                ) = @$d;
+            if ( $d->{name} eq 'periodic repeaters with start and end dates' ) {
                 eval {
-                    $mm1 = $months{$mm1};
-                    while ( $yy1 < $y || ( $yy1 == $y && $mm1 < $m ) ) {
-                        ( $yy1, $mm1, $dd1 ) =
-                          Date::Calc::Add_Delta_Days( $yy1, $mm1, $dd1, $p );
+                    $d->{mm1} = $months{ $d->{mm1} };
+                    while ( $d->{yy1} < $y
+                        || ( $d->{yy1} == $y && $d->{mm1} < $m ) )
+                    {
+                        ( $d->{yy1}, $d->{mm1}, $d->{dd1} ) =
+                          Date::Calc::Add_Delta_Days( $d->{yy1}, $d->{mm1},
+                            $d->{dd1}, $d->{p} );
                     }
                     my $ldate =
-                      Date::Calc::Date_to_Days( $yy2, $months{$mm2}, $dd2 );
-                    while ( ( $yy1 == $y ) && ( $mm1 == $m ) ) {
-                        my $date = Date::Calc::Date_to_Days( $yy1, $mm1, $dd1 );
-                        if ( $xmap[$dd1] && ( $date <= $ldate ) ) {
-                            _highlightDay( $cal, $dd1, $descr, %options );
+                      Date::Calc::Date_to_Days( $d->{yy2}, $months{ $d->{mm2} },
+                        $d->{dd2} );
+                    while ( ( $d->{yy1} == $y ) && ( $d->{mm1} == $m ) ) {
+                        my $date =
+                          Date::Calc::Date_to_Days( $d->{yy1}, $d->{mm1},
+                            $d->{dd1} );
+                        if ( $xmap[ $d->{dd1} ] && ( $date <= $ldate ) ) {
+                            _highlightDay( $cal, $d->{dd1}, $d->{descr},
+                                %options );
                         }
-                        ( $yy1, $mm1, $dd1 ) =
-                          Date::Calc::Add_Delta_Days( $yy1, $mm1, $dd1, $p );
+                        ( $d->{yy1}, $d->{mm1}, $d->{dd1} ) =
+                          Date::Calc::Add_Delta_Days( $d->{yy1}, $d->{mm1},
+                            $d->{dd1}, $d->{p} );
                     }
                 };
                 Foswiki::Func::writeWarning( PLUGINNAME . ": $@ " )
@@ -878,22 +932,27 @@ MESSAGE
             }
 
             # collect periodic repeaters
-            if ( $d->[0] eq 'periodic repeaters' ) {
-
-                my ( $name, $p, $dd, $mm, $yy, $xs, $xcstr, $descr ) = @$d;
+            if ( $d->{name} eq 'periodic repeaters' ) {
                 eval {
-                    $mm = $months{$mm};
-                    if ( ( $mm <= $m && $yy == $y ) || ( $yy < $y ) ) {
-                        while ( $yy < $y || ( $yy == $y && $mm < $m ) ) {
-                            ( $yy, $mm, $dd ) =
-                              Date::Calc::Add_Delta_Days( $yy, $mm, $dd, $p );
+                    $d->{mm} = $months{ $d->{mm} };
+                    if (   ( $d->{mm} <= $m && $d->{yy} == $y )
+                        || ( $d->{yy} < $y ) )
+                    {
+                        while ( $d->{yy} < $y
+                            || ( $d->{yy} == $y && $d->{mm} < $m ) )
+                        {
+                            ( $d->{yy}, $d->{mm}, $d->{dd} ) =
+                              Date::Calc::Add_Delta_Days( $d->{yy}, $d->{mm},
+                                $d->{dd}, $d->{p} );
                         }
-                        while ( $yy == $y && $mm == $m ) {
-                            if ( $xmap[$dd] ) {
-                                _highlightDay( $cal, $dd, $descr, %options );
+                        while ( $d->{yy} == $y && $d->{mm} == $m ) {
+                            if ( $xmap[ $d->{dd} ] ) {
+                                _highlightDay( $cal, $d->{dd}, $d->{descr},
+                                    %options );
                             }
-                            ( $yy, $mm, $dd ) =
-                              Date::Calc::Add_Delta_Days( $yy, $mm, $dd, $p );
+                            ( $d->{yy}, $d->{mm}, $d->{dd} ) =
+                              Date::Calc::Add_Delta_Days( $d->{yy}, $d->{mm},
+                                $d->{dd}, $d->{p} );
                         }
                     }
                 };
@@ -902,15 +961,13 @@ MESSAGE
             }
 
             # collect date monthly repeaters
-            if ( $d->[0] eq 'date monthly repeaters' ) {
-
-                my ( $name, $dd, $xs, $xcstr, $descr ) = @$d;
+            if ( $d->{name} eq 'date monthly repeaters' ) {
                 eval {
-                    if (   $dd > 0
-                        && $dd <= Date::Calc::Days_in_Month( $y, $m )
-                        && $xmap[$dd] )
+                    if (   $d->{dd} > 0
+                        && $d->{dd} <= Date::Calc::Days_in_Month( $y, $m )
+                        && $xmap[ $d->{dd} ] )
                     {
-                        _highlightDay( $cal, $dd, $descr, %options );
+                        _highlightDay( $cal, $d->{dd}, $d->{descr}, %options );
                     }
                 };
                 Foswiki::Func::writeWarning( PLUGINNAME . ": $@ " )
@@ -1338,4 +1395,4 @@ Copyright (C) 2001 Andrea Sterbini, a.sterbini@flashnet.it
 Christian Schultze: debugging, relative month/year, highlight today
 Akim Demaille <akim@freefriends.org>: handle date intervals.
 Copyright (C) 2002-2006 Peter Thoeny, peter@thoeny.org
-Copyright (C) 2008-2010 Foswiki Contributors
+Copyright (C) 2008-2011 Foswiki Contributors

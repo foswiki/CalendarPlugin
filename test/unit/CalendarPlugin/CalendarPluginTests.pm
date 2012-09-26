@@ -43,14 +43,6 @@ sub NOT_set_up {
     $Foswiki::cfg{LocalSitePreferences} = "$this->{users_web}.SitePreferences";
 }
 
-sub NOT_set_up {
-    my $this = shift;
-
-    $this->SUPER::set_up();
-
-    $Foswiki::cfg{LocalSitePreferences} = "$this->{users_web}.SitePreferences";
-}
-
 =begin tml
 
 ---+++ Event Syntax
@@ -100,10 +92,10 @@ sub _dateparse {
                     grep { $_ ne 'name' } @{
                         $Foswiki::Plugins::CalendarPlugin::Core::parse_definitions{
                             $name}->{keys}
-                      }
-                  }
+                    }
+                }
               )
-          } @days
+        } @days
     );
 }
 

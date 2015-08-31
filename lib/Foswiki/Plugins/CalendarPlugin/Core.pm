@@ -151,7 +151,7 @@ our %defaults = (
     weekdaycontentcolor       => undef,         # the default is ok
     weekendcontentcolor       => undef,         # the default is ok
     todaycontentcolor         => undef,         # the default is ok
-    headercolor               => 'wheat',
+    headercolor               => undef,         # Will be overridden to web color
     headercontentcolor        => undef,         # the default is ok
     weekdayheadercolor        => undef,         # the default is ok
     weekdayheadercontentcolor => undef,         # the default is ok
@@ -544,7 +544,8 @@ MESSAGE
 
         # header color
         my $webColor =
-          Foswiki::Func::getPreferencesValue( 'WEBBGCOLOR', $options{web} )
+          $options{headercolor}
+          || Foswiki::Func::getPreferencesValue( 'WEBBGCOLOR', $options{web} )
           || 'wheat';
 
         # Highlight today

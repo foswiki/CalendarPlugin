@@ -476,12 +476,18 @@ MESSAGE
     my %multidayeventswithyear    = ();
     my %multidayeventswithoutyear = ();
 
-    # Read in the event list. Use %INCLUDE to get access control
-    # checking right.
-    my $text = join( "\n",
-        map { '%INCLUDE{"' . $_ . '"}%' }
-          split( /, */, $options{topic} ) );
-    $text = Foswiki::Func::expandCommonVariables( $text, $topic, $web );
+    # Collect event text from named topics
+    my $text;
+
+    foreach my $evWebTopic ( split( /, */, $options{topic} ) ) {
+        my ( $evWeb, $evTopic ) = Foswiki::Func::normalizeWebTopicName( $web, $evWebTopic );
+        if ( Foswiki::Func::checkAccessPermission(
+                "VIEW", $session->{user}, undef, $evTopic, $evWeb
+            ) ) {
+            my ($meta, $evText) = Foswiki::Func::readTopic( $evWeb, $evTopic );
+            $text .= $evText;
+        }
+    }
 
     # Loop, displaying one month at a time for the number of months
     # requested.

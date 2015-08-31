@@ -1,4 +1,5 @@
 data/System/CalendarPlugin.txt 0660
+lib/Foswiki/Plugins/CalendarPlugin/DEPENDENCIES 0644
 lib/Foswiki/Plugins/CalendarPlugin.pm 0440
 lib/Foswiki/Plugins/CalendarPlugin/Core.pm 0440
 pub/System/CalendarPlugin/exclam.gif 0660

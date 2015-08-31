@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" date="1139433752" format="1.0" version="1.8"}%
+%META:TOPICINFO{author="ProjectContributor" date="1440986507" format="1.0" version="1.8"}%
 ---+!! Calendar Plugin
 <!--
    * Set SHORTDESCRIPTION = %$SHORTDESCRIPTION%
@@ -33,7 +33,7 @@ Please define preferences as non-plugin preference settings instead.
 | =topic="TopicName"=  | Topic containing events | The topic containing the tag |
 | =topic="Web.TopicName1, <nop>Web.TopicName2"=  | Topics containing events | The topics containing the events. You must have VIEW access to these topics, or the events therein will be ignored. |
 | =web="Webname"=		| Web containing the event topic | The current web |
-| =lang="language"=	 | Language: First few characters of "English", "Fran�ais", "Deutsch", "Espa�ol", "Portugu�s", "Nederlands", "Italiano", "Norsk", "Svenska", "Dansk", "suomi", "Magyar", "Polski | "English" |
+| =lang="language"=	 | Language: First few characters of "English", "Fran&ccedil;ais", "Deutsch", "Espa&ntilde;ol", "Portugu&ecirc;s", "Nederlands", "Italiano", "Norsk", "Svenska", "Dansk", "suomi", "Magyar", "polski", "Romaneste" | "English" |
 | =daynames="Mon&brvbar;Tue&brvbar;..."= | Custom day names | "Monday&brvbar;Tuesday&brvbar;Wednesday&brvbar;Thursday&brvbar;<br />Friday&brvbar;Saturday&brvbar;Sunday" |
 | =header="..."=	 | Text at the top of the calendar; use =$m= for current month, =$y= for year | Current month and year |
 | =weekstartsonmonday="1"= or ="0"= | Flag to start week on Monday | "0" (Sunday) |
@@ -406,6 +406,10 @@ font-weight:bold;
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  2.100 (1 Sep 2015):  | Foswiki:Tasks.Item2038: Preserve header colors across multiple months.<br/>\
+                          Foswiki:Tasks.Item10135: Don't omit events outside of STARTINCLUDE/STOPINCLUDE blocks<br/>\
+                          Foswiki:Tasks.Item11202: Modernize CalendarPlugin (phase 1)<br/>\
+                          Update copyright, Eliminate Subversion macros, Remove high characters from plugin topic. Foswiki:Main.GeorgeClark |
 |  2.001 (26 Oct 2011): | Foswiki:Tasks.Item11202: created unit tests! rewrote the parse code to make it testable - Foswiki:Main.SvenDowideit |
 |  2.000 (30 Jun 2010): | Foswiki:Tasks.Item1841: Foswiki:Tasks.Item8421: Foswiki:Tasks.Item1546: added support for macro expansions to provide the event lists. This allows other plugins to generate data sources e.g. by including calendars from e.g. <nop>CalDAV. Restructured for maintenance and performance. Foswiki:Tasks.Item9231: Added topic permission checking. Crawford Currie http://c-dot.co.uk |
 |  12 Aug 2009: | Foswiki:Main.MarcelloBontempoSalgueiro: add =eventbgcolor= attribute for background color when day have a event |
@@ -437,5 +441,5 @@ font-weight:bold;
 |  Home: | http://foswiki.org/Extensions/%TOPIC% |
 |  Support: | http://foswiki.org/Support/%TOPIC% |
 
-%META:FILEATTACHMENT{name="exclam.gif" attr="h" comment="Image of exclamation point" date="1073090410"}%
+%META:FILEATTACHMENT{name="exclam.gif" attr="h" comment="Image of exclamation point" user="ProjectContributor" date="1440986507"}%
 %META:FILEATTACHMENT{name="day-bg.png" attr="h" comment="example css background image"}%

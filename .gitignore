@@ -1,0 +1,10 @@
+*,v
+*,pfv
+*.gz
+/CalendarPlugin.md5
+/CalendarPlugin.sha1
+/CalendarPlugin.tgz
+/CalendarPlugin.txt
+/CalendarPlugin.zip
+/CalendarPlugin_installer
+/CalendarPlugin_installer.pl

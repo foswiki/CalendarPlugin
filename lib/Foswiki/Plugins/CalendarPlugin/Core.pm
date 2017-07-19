@@ -485,7 +485,7 @@ MESSAGE
                 "VIEW", $session->{user}, undef, $evTopic, $evWeb
             ) ) {
             my ($meta, $evText) = Foswiki::Func::readTopic( $evWeb, $evTopic );
-            $text .= $evText;
+            $text .= Foswiki::Func::expandCommonVariables($evText);
         }
     }
 

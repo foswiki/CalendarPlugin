@@ -406,7 +406,8 @@ font-weight:bold;
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
-|  2.100 (1 Sep 2015):  | Foswiki:Tasks.Item2038: Preserve header colors across multiple months.<br/>\
+|  2.020 (18 Jul 2017): | Foswiki:Tasks.Item14440: Restore expansion of macros for Calendar event topics. |
+|  2.010 (1 Sep 2015):  | Foswiki:Tasks.Item2038: Preserve header colors across multiple months.<br/>\
                           Foswiki:Tasks.Item10135: Don't omit events outside of STARTINCLUDE/STOPINCLUDE blocks<br/>\
                           Foswiki:Tasks.Item11202: Modernize CalendarPlugin (phase 1)<br/>\
                           Update copyright, Eliminate Subversion macros, Remove high characters from plugin topic. Foswiki:Main.GeorgeClark |
